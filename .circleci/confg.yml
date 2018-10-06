@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:latest
+
+    working_directory: /go/src/github.com/ropnop/invoicer
+    steps:
+      - checkout
+
+      - run:
+          name: Testing Application
+          command: go test /go/src/github.com/ropnop/invoicer
+
+      - run:
+          name: Build Application
+          command: go build --ldflags '-extldflags "-static"' . 
