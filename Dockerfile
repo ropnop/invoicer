@@ -1,11 +1,13 @@
 FROM busybox:latest
-RUN addgroup --gid 10001 app
-RUN adduser -G app -u 10001 -h /app -s /bin/false -D app
+RUN addgroup -g 10001 app && \
+    adduser -G app -u 10001 \
+    -D -h /app -s /sbin/nologin app
 
-RUN mkdir -p /app/statics/
+RUN mkdir /app/statics/
 ADD statics /app/statics/
+
+COPY bin/invoicer /app/invoicer
 USER app
-COPY ./invoicer /app/
 EXPOSE 8080
 WORKDIR /app
 ENTRYPOINT /app/invoicer
