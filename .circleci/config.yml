@@ -15,12 +15,25 @@ jobs:
 
       - run:
           name: Build Application
-          command: go build --ldflags '-extldflags "-static"' .
+          command: |
+            go build --ldflags '-extldflags "-static"' .
+            docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
+
+      - run:
+          name: Run App in Background
+          command: docker run rflathers/myinvoicer:${CIRCLE_SHA1:0.7}
+          background: true
+
+      - run:
+          name: OWASP ZAP Checks
+          command: |
+            docker pull owasp/zap2docker-weekly
+            docker run -t owasp/zap2docker-weekly zap-baseline.py -t http://172.17.0.2:8080/ || \
+            if [ $? -ne 1 ]; then exit 0; else exit 1; fi
 
       - deploy:
           command: |
             if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-              docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
               docker push rflathers/myinvoicer:${CIRCLE_SHA1:0:7}
             fi
