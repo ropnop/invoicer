@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  Test and Build:
     docker:
       - image: circleci/golang:latest
 
@@ -17,7 +17,7 @@ jobs:
           name: Build Application
           command: docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
   
-  deploy:
+  Push and Deploy:
     docker:
       - image: circleci/golang:latest
 
@@ -28,7 +28,6 @@ jobs:
           command: |
             if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-              docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
               docker push rflathers/myinvoicer:${CIRCLE_SHA1:0:7}
             fi
 
