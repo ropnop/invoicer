@@ -25,13 +25,13 @@ jobs:
       - setup_remote_docker
 
       - run:
-        name: "Docker Push"
-        command: |
-          if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-            docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
-            docker push rflathers/myinvoicer:${CIRCLE_SHA1:0:7}
-          fi
+          name: "Docker Push"
+          command: |
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+              docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
+              docker push rflathers/myinvoicer:${CIRCLE_SHA1:0:7}
+            fi
 
 workflows:
   version: 2
