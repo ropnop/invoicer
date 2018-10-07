@@ -15,12 +15,22 @@ jobs:
 
       - run:
           name: Build Application
-          command: go build --ldflags '-extldflags "-static"' .
+          command: docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
+  
+  deploy:
+    steps:
+      - run:
+        name: "Docker Push"
+        command: |
+          if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+            docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
+            docker push rflathers/myinvoicer:${CIRCLE_SHA1:0:7}
+          fi
 
-      - deploy:
-          command: |
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-              docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
-              docker push rflathers/myinvoicer:${CIRCLE_SHA1:0:7}
-            fi
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy
