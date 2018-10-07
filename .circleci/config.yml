@@ -21,7 +21,7 @@ jobs:
 
       - run:
           name: Run App in Background
-          command: docker run rflathers/myinvoicer:${CIRCLE_SHA1:0.7}
+          command: docker run rflathers/myinvoicer:${CIRCLE_SHA1:0:7}
           background: true
 
       - run:
