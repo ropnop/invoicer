@@ -17,7 +17,10 @@ jobs:
           name: Build Application
           command: go build --ldflags '-extldflags "-static"' .
 
-      - run:
-          name: Build Docker
+      - deploy:
           command: |
-            docker build -t rflathers/invoicer:${CIRCLE_SHA1:0:7} .
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+              docker build -t rflathers/invoicer:${CIRCLE_SHA1:0:7} .
+              docker push rflathers/invoicer:${CIRCLE_SHA1:0.7}
+            fi
