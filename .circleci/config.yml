@@ -24,8 +24,7 @@ jobs:
     steps:
       - setup_remote_docker
 
-      - run:
-          name: "Docker Push"
+      - deploy:
           command: |
             if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
@@ -38,4 +37,6 @@ workflows:
   build_and_deploy:
     jobs:
       - build
-      - deploy
+      - deploy:
+          requires:
+            - build
