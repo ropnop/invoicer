@@ -17,11 +17,11 @@ jobs:
           name: Build Application
           command: |
             go build --ldflags '-extldflags "-static"' .
-            docker build -t rflathers/myinvoicer:${CIRCLE_SHA1:0:7} .
+            docker build -t rflathers/invoicer:${CIRCLE_SHA1:0:7} .
 
       - run:
           name: Run App in Background
-          command: docker run rflathers/myinvoicer:${CIRCLE_SHA1:0:7}
+          command: docker run rflathers/invoicer:${CIRCLE_SHA1:0:7}
           background: true
 
       - run:
