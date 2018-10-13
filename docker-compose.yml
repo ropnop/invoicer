@@ -1,0 +1,13 @@
+---
+version: '3'
+services:
+  invoicer:
+    image: "rflathers/invoicer:${SHORT_COMMIT:-latest}"
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  zap:
+    image: owasp/zap2docker-weekly
+    depends_on:
+      - invoicer
