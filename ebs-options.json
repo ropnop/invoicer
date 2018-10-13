@@ -1,0 +1,32 @@
+[
+    {
+        "Namespace": "aws:elasticbeanstalk:application:environment", 
+        "OptionName": "INVOICER_USE_POSTGRES", 
+        "Value": "yes"
+    },
+    {
+        "Namespace": "aws:elasticbeanstalk:application:environment", 
+        "OptionName": "INVOICER_POSTGRES_USER", 
+        "Value": "invoicer"
+    }, 
+    {
+        "Namespace": "aws:elasticbeanstalk:application:environment", 
+        "OptionName": "INVOICER_POSTGRES_PASSWORD", 
+        "Value": "weroiudsfj13408"
+    }, 
+    {
+        "Namespace": "aws:elasticbeanstalk:application:environment", 
+        "OptionName": "INVOICER_POSTGRES_DB", 
+        "Value": "invoicer"
+    }, 
+    {
+        "Namespace": "aws:elasticbeanstalk:application:environment", 
+        "OptionName": "INVOICER_POSTGRES_HOST", 
+        "Value": "invoicer-db.c49rcu69o30q.us-east-2.rds.amazonaws.com"
+    },
+    {
+        "Namespace": "aws:elasticbeanstalk:application:environment", 
+        "OptionName": "INVOICER_POSTGRES_SSLMODE", 
+        "Value": "disable"
+    }
+]
