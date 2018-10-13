@@ -2,6 +2,7 @@
 version: '3'
 services:
   invoicer:
+    image: "rflathers/invoicer:${CIRCLE_SHA1:0:7}"
     build:
       context: .
       dockerfile: Dockerfile
