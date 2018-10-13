@@ -17,12 +17,7 @@ jobs:
           name: Build Application
           command: |
             go build --ldflags '-extldflags "-static"' .
-            docker build -t rflathers/invoicer:${CIRCLE_SHA1:0:7} .
-
-      - run:
-          name: Run App in Background
-          command: docker run rflathers/invoicer:${CIRCLE_SHA1:0:7}
-          background: true
+            docker-compose -p ${CIRCLE_SHA1:0:7} -f compose.yml build invoicer
 
       - run:
           name: OWASP ZAP Checks
@@ -30,16 +25,14 @@ jobs:
           # error codes 2 & 3 indicate WARN or other, and should not break the run
           command: |
             (
-            docker pull owasp/zap2docker-weekly && \
-            docker run -t owasp/zap2docker-weekly zap-baseline.py \
-                -u https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
-                -t http://172.17.0.2:8080/ || \
-            if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+            docker-compose -p ${CIRCLE_SHA1:0:7} -f compose.yml run zap zap-baseline.py \
+              -u https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
+              -t http://invoicer:8080/ || \
+            if [$? -ne 1 ]; then exit 0; else exit 1; fi;
             )
 
       - deploy:
           command: |
             if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-              docker push rflathers/invoicer:${CIRCLE_SHA1:0:7}
+              docker-compose -p ${CIRCLE_SHA1:0:7} -f compose.yml push invoicer rflathers/invoicer:${CIRCLE_SHA1:0:7}
             fi
