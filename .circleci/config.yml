@@ -9,6 +9,8 @@ jobs:
       - checkout
       - setup_remote_docker
 
+      -run: echo 'export SHORT_COMMIT=${CIRCLE_SHA1:0:7}' >> $BASH_ENV
+      
       - run:
           name: Testing Application
           command: go test /go/src/github.com/ropnop/invoicer
