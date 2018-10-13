@@ -1,0 +1,12 @@
+---
+version: '3'
+services:
+  invoicer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  zap:
+    image: owasp/zap2docker-weekly
+    depends_on:
+      - invoicer
