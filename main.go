@@ -8,6 +8,10 @@ package main
 //go:generate ./version.sh
 
 import (
+	"crypto/hmac"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -15,6 +19,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -61,6 +66,13 @@ func main() {
 
 	iv.db = db
 	iv.db.AutoMigrate(&Invoice{}, &Charge{})
+
+	//intialize CSRF Token
+	CSRFKey = make([]byte, 128)
+	_, err = rand.Read(CSRFKey)
+	if err != nil {
+		log.Fatal("error initializing CSRF Key:", err)
+	}
 
 	// register routes
 	r := mux.NewRouter()
@@ -187,6 +199,11 @@ func (iv *invoicer) putInvoice(w http.ResponseWriter, r *http.Request) {
 
 func (iv *invoicer) deleteInvoice(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	if !checkCSRFToken(r.Header.Get("X-CSRF-Token")) {
+		w.WriteHeader(http.StatusNotAcceptable)
+		w.Write([]byte("Invalid CSRF Token"))
+		return
+	}
 	log.Println("deleting invoice", vars["id"])
 	var i1 Invoice
 	id, _ := strconv.Atoi(vars["id"])
@@ -220,7 +237,8 @@ func (iv *invoicer) getIndex(w http.ResponseWriter, r *http.Request) {
         <h3>Request an invoice by ID</h3>
         <form id="invoiceGetter" method="GET">
             <label>ID :</label>
-            <input id="invoiceid" type="text" />
+			<input id="invoiceid" type="text" />
+			<input type="hidden" name="CSRFToken" value="` + makeCSRFToken() + `">
             <input type="submit" />
         </form>
         <form id="invoiceDeleter" method="DELETE">
@@ -243,4 +261,27 @@ func getVersion(w http.ResponseWriter, r *http.Request) {
 "commit": "%s",
 "build": "https://circleci.com/gh/ropnop/invoicer/"
 }`, version, commit)))
+}
+
+var CSRFKey []byte
+
+func makeCSRFToken() string {
+	msg := make([]byte, 32)
+	rand.Read(msg)
+	mac := hmac.New(sha256.New, CSRFKey)
+	mac.Write(msg)
+	return base64.StdEncoding.EncodeToString(msg) + `$` + base64.StdEncoding.EncodeToString(mac.Sum(nil))
+}
+
+func checkCSRFToken(token string) bool {
+	mac := hmac.New(sha256.New, CSRFKey)
+	tokenParts := strings.Split(token, "$")
+	if len(tokenParts) != 2 {
+		return false
+	}
+	msg, _ := base64.StdEncoding.DecodeString(tokenParts[0])
+	messageMAC, _ := base64.StdEncoding.DecodeString(tokenParts[1])
+	mac.Write([]byte(msg))
+	expectedMAC := mac.Sum(nil)
+	return hmac.Equal(messageMAC, expectedMAC)
 }
