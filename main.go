@@ -200,6 +200,8 @@ func (iv *invoicer) deleteInvoice(w http.ResponseWriter, r *http.Request) {
 }
 
 func (iv *invoicer) getIndex(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Security-Policy", "default-src: 'self'; child-src: 'self';")
+	w.Header().Add("X-XSS-Protection", "1")
 	log.Println("serving index page")
 	w.Write([]byte(`
 <!DOCTYPE html>
@@ -236,9 +238,9 @@ func getHeartbeat(w http.ResponseWriter, r *http.Request) {
 // handleVersion returns the current version of the API
 func getVersion(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf(`{
-"source": "https://github.com/Securing-DevOps/invoicer",
+"source": "https://github.com/ropnop/invoicer",
 "version": "%s",
 "commit": "%s",
-"build": "https://circleci.com/gh/Securing-DevOps/invoicer/"
+"build": "https://circleci.com/gh/ropnop/invoicer/"
 }`, version, commit)))
 }
